@@ -1,4 +1,6 @@
-# New Power Coin ![](http://npw.live/images/logo-white2x.png)
+# New Power Coin
+
+![](http://npw.live/images/logo-white2x.png)
 
 ## Introduction
 
