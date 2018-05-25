@@ -1,12 +1,10 @@
-# New Power Coin
+# New Power Coin ![](http://npw.live/images/logo-white2x.png)
 
 ## Introduction
 
 A new masternode-enabled cryptocurrency that drives online traffic into a new era of decentralization.
 
 New Power Coin will serve as the underlying foundation of the blockchain to provide a new source of traffic for the Internet. By using blockchain technology, internet traffic targeting will never be more accurate, and your data will never be owned by anyone.
-
-![](http://npw.live/images/logo-white2x.png)
 
 **For more information, please visit: [New Power Coin Website](http://npw.live)**
 
