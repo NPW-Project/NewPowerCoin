@@ -52,7 +52,7 @@ NeoScrypt
 
 + Development: 1,000,000
 + Public: 3,500,000
-+ Airdrop Bounty & Reservation *: 750,000
++ Airdrop Bounty & Reservation: 750,000
 + Angel investors: 1,750,000
 
 ### Ports
