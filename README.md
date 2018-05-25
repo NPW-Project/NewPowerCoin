@@ -34,7 +34,7 @@ NeoScrypt
 
 ### Block Rewards
 
-| **PoW Phase Period **        | **PoS Phase Period**  |
+| **PoW Phase Period**        | **PoS Phase Period**  |
 | --------   | -----  |
 | Masternodes: 70%, Miners: 30%      | Masternodes: 80%, PoS: 20%   |
 | [block# 1] 7,000,000  (Premined)     |[block# 23601-300000] 100   |
@@ -45,19 +45,20 @@ NeoScrypt
 
 
 **Super blocks:**
+
 15 super blocks for every 21600 blocks (~1 month), reward: 1000
 
 ### Premined
 
-Development: 1,000,000
-Public: 3,500,000
-Airdrop Bounty & Reservation *: 750,000
-Angel investors: 1,750,000
++ Development: 1,000,000
++ Public: 3,500,000
++ Airdrop Bounty & Reservation *: 750,000
++ Angel investors: 1,750,000
 
 ### Ports
 
-rpc port= 61473
-p2p port= 61472
-Testnet rpc port= 61475
-Testnet p2p port = 61474
++ rpc port= 61473
++ p2p port= 61472
++ Testnet rpc port= 61475
++ Testnet p2p port = 61474
 
