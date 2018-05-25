@@ -1,0 +1,26 @@
+[Unit]
+Description=NPW's distributed currency daemon
+After=network.target
+
+[Service]
+User=npw
+Group=npw
+
+Type=forking
+PIDFile=/var/lib/npwd/npwd.pid
+
+ExecStart=/usr/bin/npwd -daemon -pid=/var/lib/npwd/npwd.pid \
+          -conf=/etc/npw/npw.conf -datadir=/var/lib/npwd
+
+ExecStop=-/usr/bin/npw-cli -conf=/etc/npw/npw.conf \
+         -datadir=/var/lib/npwd stop
+
+Restart=always
+PrivateTmp=true
+TimeoutStopSec=60s
+TimeoutStartSec=2s
+StartLimitInterval=120s
+StartLimitBurst=5
+
+[Install]
+WantedBy=multi-user.target

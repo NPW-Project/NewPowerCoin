@@ -1,0 +1,29 @@
+<!DOCTYPE RCC><RCC version="1.0">
+    <qresource prefix="/translations">
+        <file alias="bg">locale/npw_bg.qm</file>
+        <file alias="ca">locale/npw_ca.qm</file>
+        <file alias="cs">locale/npw_cs.qm</file>
+        <file alias="da">locale/npw_da.qm</file>
+        <file alias="de">locale/npw_de.qm</file>
+        <file alias="en">locale/npw_en.qm</file>
+        <file alias="en_US">locale/npw_en_US.qm</file>
+        <file alias="es">locale/npw_es.qm</file>
+        <file alias="fi">locale/npw_fi.qm</file>
+        <file alias="fr_FR">locale/npw_fr_FR.qm</file>
+        <file alias="it">locale/npw_it.qm</file>
+        <file alias="ja">locale/npw_ja.qm</file>
+        <file alias="ko_KR">locale/npw_ko_KR.qm</file>
+        <file alias="nl">locale/npw_nl.qm</file>
+        <file alias="pl">locale/npw_pl.qm</file>
+        <file alias="pt">locale/npw_pt.qm</file>
+        <file alias="pt_BR">locale/npw_pt_BR.qm</file>
+        <file alias="ro_RO">locale/npw_ro_RO.qm</file>
+        <file alias="ru">locale/npw_ru.qm</file>
+        <file alias="sk">locale/npw_sk.qm</file>
+        <file alias="sv">locale/npw_sv.qm</file>
+        <file alias="tr">locale/npw_tr.qm</file>
+        <file alias="uk">locale/npw_uk.qm</file>
+        <file alias="zh_CN">locale/npw_zh_CN.qm</file>
+        <file alias="zh_TW">locale/npw_zh_TW.qm</file>
+    </qresource>
+</RCC>

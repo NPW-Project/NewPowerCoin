@@ -1,0 +1,26 @@
+# /etc/conf.d/npwd: config file for /etc/init.d/npwd
+
+# Config file location
+#BITCOIND_CONFIGFILE="/etc/npw/npw.conf"
+
+# What directory to write pidfile to?  (created and owned by $BITCOIND_USER)
+#BITCOIND_PIDDIR="/var/run/npwd"
+
+# What filename to give the pidfile
+#BITCOIND_PIDFILE="${BITCOIND_PIDDIR}/npwd.pid"
+
+# Where to write npwd data (be mindful that the blockchain is large)
+#BITCOIND_DATADIR="/var/lib/npwd"
+
+# User and group to own npwd process
+#BITCOIND_USER="npw"
+#BITCOIND_GROUP="npw"
+
+# Path to npwd executable
+#BITCOIND_BIN="/usr/bin/npwd"
+
+# Nice value to run npwd under
+#BITCOIND_NICE=0
+
+# Additional options (avoid -conf and -datadir, use flags above)
+BITCOIND_OPTS=""

@@ -1,0 +1,11 @@
+[Desktop Entry]
+Encoding=UTF-8
+Name=NPW
+Comment=NPW P2P Cryptocurrency
+Exec=npw-qt %u
+Terminal=false
+Type=Application
+Icon=npw128
+MimeType=x-scheme-handler/npw;
+Categories=Office;Finance;
+Name[zh_CN]=npw-qt.desktop.desktop
