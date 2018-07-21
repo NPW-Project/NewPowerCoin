@@ -35,7 +35,7 @@ static const bool DEFAULT_SPLASHSCREEN = true;
 /* Transaction list -- TX status decoration - default color */
 #define COLOR_BLACK QColor(124, 136, 149) //WHO WOULD DEFINE COLOR LIKE THIS!!!
 /* Transaction list -- TX status decoration - conflicted */
-#define COLOR_CONFLICTED QColor(255, 0, 0)
+#define COLOR_CONFLICTED QColor(195, 130, 112)
 
 /* Tooltips longer than this (in characters) are converted into rich text,
    so that they can be word-wrapped.
