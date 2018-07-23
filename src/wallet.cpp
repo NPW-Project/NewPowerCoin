@@ -652,9 +652,11 @@ bool CWallet::AddToWallet(const CWalletTx& wtxIn, bool fFromLoadWallet)
         wtx.BindWallet(this);
         bool fInsertedNew = ret.second;
         if (fInsertedNew) {
-            wtx.nTimeReceived = GetAdjustedTime();
-            wtx.nOrderPos = IncOrderPosNext();
-            wtx.nTimeSmart = ComputeTimeSmart(wtx);
+            if (!wtx.nTimeReceived)
+                wtx.nTimeReceived = GetAdjustedTime();
+			wtx.nOrderPos = IncOrderPosNext();
+            wtxOrdered.insert(make_pair(wtx.nOrderPos, TxPair(&wtx, (CAccountingEntry*)0)));
+			wtx.nTimeSmart = ComputeTimeSmart(wtx);
             AddToSpends(hash);
         }
 
