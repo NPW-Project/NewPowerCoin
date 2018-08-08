@@ -12,6 +12,7 @@
 
 #include <boost/filesystem.hpp>
 #include <boost/filesystem/fstream.hpp>
+#include <boost/foreach.hpp>
 
 class CMasternodeConfig;
 extern CMasternodeConfig masternodeConfig;
