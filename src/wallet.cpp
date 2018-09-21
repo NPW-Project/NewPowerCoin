@@ -1682,14 +1682,14 @@ CAmount CWallet::GetLockedCoins() const
 }
 
 // Get a Map pairing the Denominations with the amount of Zerocoin for each Denomination
-std::map<libzerocoin::CoinDenomination, CAmount> CWallet::GetMyZerocoinDistribution() const
+std::map<libzerocoin::CoinDenomination, CAmount> CWallet::GetMyZerocoinDistribution(bool isMatured) const
 {
     std::map<libzerocoin::CoinDenomination, CAmount> spread;
     for (const auto& denom : libzerocoin::zerocoinDenomList)
         spread.insert(std::pair<libzerocoin::CoinDenomination, CAmount>(denom, 0));
     {
         LOCK2(cs_main, cs_wallet);
-        list<CZerocoinMint> listPubCoin = CWalletDB(strWalletFile).ListMintedCoins(true, true, true);
+        list<CZerocoinMint> listPubCoin = CWalletDB(strWalletFile).ListMintedCoins(true, isMatured, true);
         for (auto& mint : listPubCoin)
             spread.at(mint.GetDenomination())++;
     }

@@ -837,3 +837,44 @@ UniValue getspentzerocoinamount(const UniValue& params, bool fHelp)
     CAmount nValue = libzerocoin::ZerocoinDenominationToAmount(spend.getDenomination());
     return FormatMoney(nValue);
 }
+
+#ifdef ENABLE_WALLET
+UniValue formatzerocoinitemlist(bool isMatured)
+{
+    UniValue itemlist(UniValue::VOBJ);
+
+    LOCK2(cs_main, pwalletMain->cs_wallet);
+    std::map<libzerocoin::CoinDenomination, CAmount> list = pwalletMain->GetMyZerocoinDistribution(isMatured);
+
+    for(auto& item: list) {
+        std::string strTemp = strprintf("%d", item.first);
+        itemlist.push_back(Pair(strTemp, item.second));
+    }
+
+    return itemlist;
+}
+
+UniValue getzerocoinlist(const UniValue& params, bool fHelp)
+{
+    if (fHelp || params.size() > 0)
+        throw runtime_error(
+            "getzerocoinlist\n"
+            "\nReturns list of all minted zerocoins with various value include immatured.\n"
+            "\nResult:\n"
+            "\"Matured\"        (json) List of matured zerocoins by value\n"
+            "\"All\"            (json) List of all zerocoins by value\n"
+            "\nExamples:\n" +
+            HelpExampleCli("getzerocoinlist", ""));
+
+    LOCK(cs_main);
+
+    UniValue ret(UniValue::VOBJ);
+    assert(pwalletMain != NULL);
+    UniValue zclist = formatzerocoinitemlist(false);
+	ret.push_back(Pair("All", zclist));
+    zclist = formatzerocoinitemlist(true);
+	ret.push_back(Pair("Matured", zclist));
+
+    return ret;
+}
+#endif

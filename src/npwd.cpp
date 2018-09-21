@@ -80,7 +80,7 @@ bool AppInit(int argc, char* argv[])
     // Process help and version before taking care about datadir
     if (mapArgs.count("-?") || mapArgs.count("-help") || mapArgs.count("-version")) {
         if (mapArgs.count("-version")) {
-            strUsage += LicenseInfo();
+            strUsage = LicenseInfo();
         } else {
             strUsage += "\n" + _("Usage:") + "\n" +
                         "  npwd [options]                     " + _("Start NPW Core Daemon") + "\n";
