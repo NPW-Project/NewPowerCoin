@@ -74,10 +74,11 @@ bool AppInit(int argc, char* argv[])
     // If Qt is used, parameters/npw.conf are parsed in qt/npw.cpp's main()
     ParseParameters(argc, argv);
 
+    std::string strUsage = _("NPW Core Daemon") + " " + _("version") + " " + FormatFullVersion() + "\n";
+	cout << strUsage << endl;
+
     // Process help and version before taking care about datadir
     if (mapArgs.count("-?") || mapArgs.count("-help") || mapArgs.count("-version")) {
-        std::string strUsage = _("NPW Core Daemon") + " " + _("version") + " " + FormatFullVersion() + "\n";
-
         if (mapArgs.count("-version")) {
             strUsage += LicenseInfo();
         } else {
