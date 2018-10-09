@@ -723,6 +723,28 @@ UniValue getunconfirmedbalance(const UniValue &params, bool fHelp)
     return ValueFromAmount(pwalletMain->GetUnconfirmedBalance());
 }
 
+UniValue getunspendablebalance(const UniValue& params, bool fHelp)
+{
+    if (fHelp || params.size() > 0)
+        throw runtime_error(
+            "getunspendablebalance\n"
+            "Returns the server's total unspendable(include: unconfirmed, immature and locked) balance\n"
+			"\nResult:\n"
+			"\"immature\"     (numeric) Total imature balance.\n"
+			"\"unconfirmed\"  (numeric) Total unconfirmed balance.\n"
+			"\"locked\"       (numeric) Total locked balance.\n"
+		);
+
+    UniValue ret(UniValue::VOBJ);
+    LOCK2(cs_main, pwalletMain->cs_wallet);
+
+    ret.push_back(Pair("immature", ValueFromAmount(pwalletMain->GetImmatureBalance())));
+    ret.push_back(Pair("unconfirmed", ValueFromAmount(pwalletMain->GetUnconfirmedBalance())));
+    ret.push_back(Pair("locked", ValueFromAmount(pwalletMain->GetLockedCoins())));
+
+    return ret;
+}
+
 
 UniValue movecmd(const UniValue& params, bool fHelp)
 {
