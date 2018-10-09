@@ -1372,7 +1372,7 @@ void CWalletTx::GetAmounts(list<COutputEntry>& listReceived,
         COutputEntry output = {address, txout.nValue, (int)i};
 
         // If we are debited by the transaction, add the output as a "sent" entry
-        if (nDebit > 0)
+        if (nDebit > 0 || IsZerocoinSpend())
             listSent.push_back(output);
 
         // If we are receiving the output, add it as a "received" entry
