@@ -412,6 +412,7 @@ static const CRPCCommand vRPCCommands[] =
         {"wallet", "keypoolrefill", &keypoolrefill, true, false, true},
         {"wallet", "listaccounts", &listaccounts, false, false, true},
         {"wallet", "listaddressgroupings", &listaddressgroupings, false, false, true},
+        {"wallet", "listaddresses", &listaddresses, false, false, true},
         {"wallet", "listlockunspent", &listlockunspent, false, false, true},
         {"wallet", "listreceivedbyaccount", &listreceivedbyaccount, false, false, true},
         {"wallet", "listreceivedbyaddress", &listreceivedbyaddress, false, false, true},
@@ -446,7 +447,7 @@ static const CRPCCommand vRPCCommands[] =
         {"zerocoin", "exportzerocoins", &exportzerocoins, false, false, true},
         {"zerocoin", "reconsiderzerocoins", &reconsiderzerocoins, false, false, true},
         {"zerocoin", "getspentzerocoinamount", &getspentzerocoinamount, false, false, false},
-        {"zerocoin", "getzerocoinlist", &getzerocoinlist, false, false, false}
+		{"zerocoin", "getzerocoinlist", &getzerocoinlist, false, false, false}
 
 #endif // ENABLE_WALLET
 };

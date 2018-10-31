@@ -228,16 +228,10 @@ UniValue setaccount(const UniValue& params, bool fHelp)
         strAccount = AccountFromValue(params[1]);
 
     // Only add the account if the address is yours.
-    if (IsMine(*pwalletMain, address.Get())) {
-        // Detect when changing the account of an address that is the 'unused current key' of another account:
-        if (pwalletMain->mapAddressBook.count(address.Get())) {
-            string strOldAccount = pwalletMain->mapAddressBook[address.Get()].name;
-            if (address == GetAccountAddress(strOldAccount))
-                GetAccountAddress(strOldAccount, true);
-        }
+    if (IsMine(*pwalletMain, address.Get()))
         pwalletMain->SetAddressBook(address.Get(), strAccount, "receive");
-    } else
-        throw JSONRPCError(RPC_MISC_ERROR, "setaccount can only be used with own address");
+    else
+        pwalletMain->SetAddressBook(address.Get(), strAccount, "send");
 
     return NullUniValue;
 }
@@ -463,6 +457,42 @@ UniValue listaddressgroupings(const UniValue& params, bool fHelp)
     }
     return jsonGroupings;
 }
+
+
+UniValue listaddresses(const UniValue& params, bool fHelp)
+{
+    if (fHelp)
+        throw runtime_error(
+            "listaddresses\n"
+            "\nLists all used addresses in wallet\n"
+            "\nResult:\n"
+            "[\n"
+            "  [\n"
+            "    \"npwaddress\",     (string) The npw address\n"
+            "    \"label\"           (string) The account name\n"
+            "  ]\n"
+            "  ,...\n"
+            "]\n"
+            "\nExamples:\n" +
+            HelpExampleCli("listaddresses", "") + HelpExampleRpc("listaddresses", ""));
+
+    LOCK2(cs_main, pwalletMain->cs_wallet);
+
+    UniValue jsonAddress(UniValue::VARR);
+    BOOST_FOREACH (const PAIRTYPE(CTxDestination, CAddressBookData) & item, pwalletMain->mapAddressBook) {
+        const CBitcoinAddress& address = item.first;
+        if(!IsMine(*pwalletMain, address.Get()))
+			continue;
+        const std::string& strName = item.second.name;
+        UniValue addressInfo(UniValue::VARR);
+        addressInfo.push_back(address.ToString());
+        addressInfo.push_back(strName);
+        jsonAddress.push_back(addressInfo);
+    }
+
+	return jsonAddress;
+}
+
 
 UniValue signmessage(const UniValue& params, bool fHelp)
 {
@@ -1212,7 +1242,7 @@ void ListTransactions(const CWalletTx& wtx, const string& strAccount, int nMinDe
                 entry.push_back(Pair("involvesWatchonly", true));
             entry.push_back(Pair("account", strSentAccount));
             MaybePushAddress(entry, s.destination);
-//            std::map<std::string, std::string>::const_iterator it = wtx.mapValue.find("DS");
+            //std::map<std::string, std::string>::const_iterator it = wtx.mapValue.find("DS");
             entry.push_back(Pair("category", (wtx.IsZerocoinSpend()) ? "zerocoinspend" : "send"));
             entry.push_back(Pair("amount", ValueFromAmount(-s.amount)));
             entry.push_back(Pair("vout", s.vout));
