@@ -57,6 +57,8 @@ static const CRPCConvertParam vRPCConvertParams[] =
         {"listtransactions", 1},
         {"listtransactions", 2},
         {"listtransactions", 3},
+        {"listtransactionsex", 0},
+        {"listtransactionsex", 1},
         {"listaccounts", 0},
         {"listaccounts", 1},
         {"walletpassphrase", 1},
@@ -136,7 +138,7 @@ static const CRPCConvertParam vRPCConvertParams[] =
         {"exportzerocoins", 1},
         {"resetmintzerocoin", 0},
         {"getspentzerocoinamount", 1},
-        {"getzerocoinlist", 0},
+		{"getzerocoinlist", 0},
         {"getfeeinfo", 0}
     };
 

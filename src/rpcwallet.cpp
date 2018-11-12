@@ -18,6 +18,7 @@
 #include "utilmoneystr.h"
 #include "wallet.h"
 #include "walletdb.h"
+#include "primitives/transactionex.h"
 
 #include <stdint.h>
 
@@ -26,6 +27,9 @@
 #include <boost/assign/list_of.hpp>
 
 #include <univalue.h>
+#include <set>
+#include <algorithm>
+#include <functional>
 
 using namespace std;
 using namespace boost;
@@ -1414,6 +1418,117 @@ UniValue listtransactions(const UniValue& params, bool fHelp)
     ret.clear();
     ret.setArray();
     ret.push_backV(arrTmp);
+
+    return ret;
+}
+
+UniValue listtransactionsex(const UniValue& params, bool fHelp)
+{
+    if (fHelp || params.size() > 2)
+        throw runtime_error(
+            "listtransactionsex [count from]\n"
+            "\nReturns up to 'count' most recent transactions.\n"
+            "\nArguments:\n"
+            "1. count          (numeric, optional, default=10) The number of transactions to return\n"
+            "2. from           (numeric, optional, default=0) The number of transactions to skip\n"
+            "\nResult:\n"
+            "[\n"
+            "  {\n"
+            "    \"address\":\"npwaddress\", (string) The npw address of the transaction. Not present for \n"
+            "                                          move transactions (category = move).\n"
+            "    \"type\":\"0 - 19\",        (numeric) The transaction type.\n"
+            "                                                0 : Other,                           1 : Generated,\n"
+            "                                                2 : StakeMint,                       3 : SendToAddress,\n"
+            "                                                4 : SendToOther,                     5 : RecvWithAddress,\n"
+            "                                                6 : MNReward,                        7 : RecvFromOther,\n"
+            "                                                8 : SendToSelf,                      9 : ZerocoinMint,\n"
+            "                                                10: ZerocoinSpend,                   11: RecvFromZerocoinSpend,\n"
+            "                                                12: ZerocoinSpend_Change_zNpw,       13: ZerocoinSpend_FromMe,\n"
+            "                                                14: RecvWithObfuscation,             15: ObfuscationDenominate,\n"
+            "                                                16: ObfuscationCollateralPayment,    17: ObfuscationMakeCollaterals,\n"
+            "                                                18: ObfuscationCreateDenominations,  19: Obfuscated\n"
+            "    \"debit\": x.xxx,           (numeric) The amount in NPW.\n"
+            "    \"credit\": x.xxx,          (numeric) The amount in NPW.\n"
+            "    \"status\":\"0 - 9\",       (numeric) The transaction status.\n"
+            "                                                0 : Confirmed, Have 6 or more confirmations(normal tx) or fully mature(mined tx)\n"
+            "                                                ---== Normal (sent/received) transactions ==---"
+            "                                                1 : OpenUntilDate, Transaction not yet final, waiting for date\n"
+            "                                                2 : OpenUntilBlock, Transaction not yet final, waiting for block\n"
+            "                                                3 : Offline, Not sent to any other nodes\n"
+            "                                                4 : Unconfirmed, Not yet mined into a block\n"
+            "                                                5 : Confirming, Confirmed, but waiting for the recommended number of confirmations\n"
+            "                                                6 : Conflicted, Conflicts with other transaction or mempool\n"
+            "                                                ---== Generated (mined) transactions ==---"
+            "                                                7 : Immature, Mined but waiting for maturity\n"
+            "                                                8 : MaturesWarning, Transaction will likely not mature because no nodes have confirmed\n"
+            "                                                9 : NotAccepted, Mined but not accepted\n"
+            "    \"confirmations\": n,       (numeric) The number of confirmations for the transaction. Available for 'send' and \n"
+            "                                         'receive' category of transactions.\n"
+            "    \"bcconfirmations\": n,     (numeric) The number of blockchain confirmations for the transaction. Available for 'send'\n"
+            "                                          and 'receive' category of transactions.\n"
+            "    \"blockhash\": \"hashvalue\", (string) The block hash containing the transaction. Available for 'send' and 'receive'\n"
+            "                                          category of transactions.\n"
+            "    \"blockindex\": n,          (numeric) The block index containing the transaction. Available for 'send' and 'receive'\n"
+            "                                          category of transactions.\n"
+            "    \"txid\": \"transactionid\", (string) The transaction id. Available for 'send' and 'receive' category of transactions.\n"
+            "    \"time\": xxx,              (numeric) The transaction time in seconds since epoch (midnight Jan 1 1970 GMT).\n"
+            "    \"timereceived\": xxx,      (numeric) The time received in seconds since epoch (midnight Jan 1 1970 GMT). Available \n"
+            "                                          for 'send' and 'receive' category of transactions.\n"
+            "    \"comment\": \"...\",       (string) If a comment is associated with the transaction.\n"
+            "    \"otheraccount\": \"accountname\",  (string) For the 'move' category of transactions, the account the funds came \n"
+            "                                          from (for receiving funds, positive amounts), or went to (for sending funds,\n"
+            "                                          negative amounts).\n"
+            "  }\n"
+            "]\n"
+
+            "\nExamples:\n"
+            "\nList transactions in the systems\n" +
+            HelpExampleCli("listtransactionsex", "") +
+            "\nList transactions 100 to 120 from the tabby account\n" + HelpExampleCli("listtransactionsex", "20 100") +
+            "\nAs a json rpc call\n" + HelpExampleRpc("listtransactionsex", "20, 100"));
+
+    UniValue ret(UniValue::VARR);
+
+    int64_t nFrom = 0, nCount = 10, nCurrent = 0, nProcessed = 0;
+
+    if (params.size() > 0)
+        nCount = params[0].get_int64();
+
+    if (params.size() > 1)
+        nFrom = params[1].get_int64();
+
+    LOCK2(cs_main, pwalletMain->cs_wallet);
+    const CWallet::TxItems & txOrdered = pwalletMain->wtxOrdered;
+
+    for (CWallet::TxItems::const_reverse_iterator it = txOrdered.rbegin(); it != txOrdered.rend(); ++it) {
+        CWalletTx* const pwtx = (*it).second.first;
+
+        if (0 != pwtx && TransactionRecordEx::showTransaction(*pwtx)) {
+            std::list<TransactionRecordEx> items;
+            items = TransactionRecordEx::decomposeTransaction(pwalletMain, *pwtx);
+
+            for(std::list<TransactionRecordEx>::iterator it = items.begin(); it != items.end(); ++it) {
+				if(nCurrent < nFrom) {
+					++nCurrent;
+					continue;
+				}
+                nProcessed++;
+                UniValue entry(UniValue::VOBJ);
+				entry.push_back(Pair("address", it->address));
+				entry.push_back(Pair("type", it->type));
+				entry.push_back(Pair("debit", ValueFromAmount(it->debit)));
+				entry.push_back(Pair("credit", ValueFromAmount(it->credit)));
+				entry.push_back(Pair("status", it->status.status));
+				WalletTxToJSON(*pwtx, entry);
+				ret.push_back(entry);
+                if(nProcessed >= nCount)
+					break;
+            }
+
+            if(nProcessed >= nCount)
+                break;
+        }
+    }
 
     return ret;
 }

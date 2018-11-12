@@ -654,9 +654,9 @@ bool CWallet::AddToWallet(const CWalletTx& wtxIn, bool fFromLoadWallet)
         if (fInsertedNew) {
             if (!wtx.nTimeReceived)
                 wtx.nTimeReceived = GetAdjustedTime();
-			wtx.nOrderPos = IncOrderPosNext();
+            wtx.nOrderPos = IncOrderPosNext();
             wtxOrdered.insert(make_pair(wtx.nOrderPos, TxPair(&wtx, (CAccountingEntry*)0)));
-			wtx.nTimeSmart = ComputeTimeSmart(wtx);
+            wtx.nTimeSmart = ComputeTimeSmart(wtx);
             AddToSpends(hash);
         }
 
@@ -1314,7 +1314,7 @@ CAmount CWalletTx::GetLockedWatchOnlyCredit() const
         }
 
         // Add masternode collaterals which are handled likc locked coins
-        if (fMasterNode && vout[i].nValue == 20000 * COIN) {
+        else if (fMasterNode && vout[i].nValue == 20000 * COIN) {
             nCredit += pwallet->GetCredit(txout, ISMINE_WATCH_ONLY);
         }
 
@@ -1696,6 +1696,25 @@ std::map<libzerocoin::CoinDenomination, CAmount> CWallet::GetMyZerocoinDistribut
     return spread;
 }
 
+/*
+std::vector<std::map<libzerocoin::CoinDenomination, CAmount>> CWallet::GetMyZerocoinItemList() const
+{
+	std::vector<std::map<libzerocoin::CoinDenomination, CAmount>> ret;
+    std::map<libzerocoin::CoinDenomination, CAmount> unconfirmed;
+	ret.push_back(GetMyZerocoinDistribution());
+
+    for (const auto& denom : libzerocoin::zerocoinDenomList)
+        unconfirmed.insert(std::pair<libzerocoin::CoinDenomination, CAmount>(denom, 0));
+    {
+        LOCK2(cs_main, cs_wallet);
+        list<CZerocoinMint> listPubCoin = CWalletDB(strWalletFile).ListMintedCoins(true, false, true);
+        for (auto& mint : listPubCoin)
+            unconfirmed.at(mint.GetDenomination())++;
+		ret.push_back(unconfirmed);
+    }
+
+    return ret;
+}*/
 
 CAmount CWallet::GetAnonymizableBalance() const
 {

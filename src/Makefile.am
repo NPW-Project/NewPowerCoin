@@ -114,6 +114,7 @@ BITCOIN_CORE_H = \
   compressor.h \
   primitives/block.h \
   primitives/transaction.h \
+  primitives/transactionex.h \
   primitives/zerocoin.h \
   core_io.h \
   crypter.h \
@@ -263,6 +264,7 @@ libbitcoin_wallet_a_SOURCES = \
   masternodeman.cpp \
   rpcdump.cpp \
   primitives/zerocoin.cpp \
+  primitives/transactionex.cpp \
   rpcwallet.cpp \
   kernel.cpp \
   wallet.cpp \
