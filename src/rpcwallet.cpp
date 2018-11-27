@@ -59,7 +59,6 @@ void WalletTxToJSON(const CWalletTx& wtx, UniValue& entry)
         entry.push_back(Pair("generated", true));
     if (confirms > 0) {
         entry.push_back(Pair("blockhash", wtx.hashBlock.GetHex()));
-        entry.push_back(Pair("blockindex", wtx.nIndex));
         entry.push_back(Pair("blocktime", mapBlockIndex[wtx.hashBlock]->GetBlockTime()));
     }
     uint256 hash = wtx.GetHash();
@@ -980,6 +979,78 @@ UniValue sendmany(const UniValue& params, bool fHelp)
     return wtx.GetHash().GetHex();
 }
 
+
+UniValue sendmanyex(const UniValue& params, bool fHelp)
+{
+    if (fHelp || params.size() < 1 || params.size() > 2)
+        throw runtime_error(
+            "sendmanyex {\"address\":amount,...} ( minconf \"comment\" )\n"
+            "\nSend multiple times. Amounts are double-precision floating point numbers." +
+            HelpRequiringPassphrase() + "\n"
+                                        "\nArguments:\n"
+                                        "1. \"amounts\"             (string, required) A json object with addresses and amounts\n"
+                                        "    {\n"
+                                        "      \"address\":amount   (numeric) The npw address is the key, the numeric amount in btc is the value\n"
+                                        "      ,...\n"
+                                        "    }\n"
+                                        "2. \"comment\"             (string, optional) A comment\n"
+                                        "\nResult:\n"
+                                        "\"transactionid\"          (string) The transaction id for the send. Only 1 transaction is created regardless of \n"
+                                        "                                    the number of addresses.\n"
+                                        "\nExamples:\n"
+                                        "\nSend two amounts to two different addresses:\n" +
+            HelpExampleCli("sendmanyex", "{\\\"XwnLY9Tf7Zsef8gMGL2fhWA9ZmMjt4KPwg\\\":0.01,\\\"XuQQkwA4FYkq2XERzMY2CiAZhJTEDAbtcg\\\":0.02}\"") +
+            "\nSend two amounts to two different addresses setting the confirmation and comment:\n" + HelpExampleCli("sendmanyex", "{\\\"XwnLY9Tf7Zsef8gMGL2fhWA9ZmMjt4KPwg\\\":0.01,\\\"XuQQkwA4FYkq2XERzMY2CiAZhJTEDAbtcg\\\":0.02}\" \"testing\"") +
+            "\nAs a json rpc call\n" + HelpExampleRpc("sendmanyex", "{\\\"XwnLY9Tf7Zsef8gMGL2fhWA9ZmMjt4KPwg\\\":0.01,\\\"XuQQkwA4FYkq2XERzMY2CiAZhJTEDAbtcg\\\":0.02}\", \"testing\""));
+
+    LOCK2(cs_main, pwalletMain->cs_wallet);
+
+    UniValue sendTo = params[0].get_obj();
+
+    CWalletTx wtx;
+    if (params.size() > 1 && !params[1].isNull() && !params[1].get_str().empty())
+        wtx.mapValue["comment"] = params[1].get_str();
+
+    set<CBitcoinAddress> setAddress;
+    vector<pair<CScript, CAmount> > vecSend;
+
+    CAmount totalAmount = 0;
+    vector<string> keys = sendTo.getKeys();
+    BOOST_FOREACH(const string& name_, keys) {
+        CBitcoinAddress address(name_);
+        if (!address.IsValid())
+            throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, string("Invalid npw address: ")+name_);
+
+        if (setAddress.count(address))
+            throw JSONRPCError(RPC_INVALID_PARAMETER, string("Invalid parameter, duplicated address: ")+name_);
+        setAddress.insert(address);
+
+        CScript scriptPubKey = GetScriptForDestination(address.Get());
+        CAmount nAmount = AmountFromValue(sendTo[name_]);
+        totalAmount += nAmount;
+
+        vecSend.push_back(make_pair(scriptPubKey, nAmount));
+    }
+
+    EnsureWalletIsUnlocked();
+
+    // Check funds
+    if (totalAmount > pwalletMain->GetBalance())
+        throw JSONRPCError(RPC_WALLET_INSUFFICIENT_FUNDS, "Account has insufficient funds");
+
+    // Send
+    CReserveKey keyChange(pwalletMain);
+    CAmount nFeeRequired = 0;
+    string strFailReason;
+    bool fCreated = pwalletMain->CreateTransaction(vecSend, wtx, keyChange, nFeeRequired, strFailReason);
+    if (!fCreated)
+        throw JSONRPCError(RPC_WALLET_INSUFFICIENT_FUNDS, strFailReason);
+    if (!pwalletMain->CommitTransaction(wtx, keyChange))
+        throw JSONRPCError(RPC_WALLET_ERROR, "Transaction commit failed");
+
+    return wtx.GetHash().GetHex();
+}
+
 // Defined in rpcmisc.cpp
 extern CScript _createmultisig_redeemScript(const UniValue& params);
 
@@ -1519,6 +1590,7 @@ UniValue listtransactionsex(const UniValue& params, bool fHelp)
 				entry.push_back(Pair("debit", ValueFromAmount(it->debit)));
 				entry.push_back(Pair("credit", ValueFromAmount(it->credit)));
 				entry.push_back(Pair("status", it->status.status));
+				entry.push_back(Pair("blockindex", it->blockidx));
 				WalletTxToJSON(*pwtx, entry);
 				ret.push_back(entry);
                 if(nProcessed >= nCount)

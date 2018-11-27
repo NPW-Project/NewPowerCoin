@@ -90,17 +90,17 @@ public:
     /** Number of confirmation recommended for accepting a transaction */
     static const int RecommendedNumConfirmations = 6;
 
-    TransactionRecordEx() : hash(), time(0), type(Other), address(""), debit(0), credit(0), idx(0)
+    TransactionRecordEx() : hash(), time(0), type(Other), address(""), debit(0), credit(0), idx(0), blockidx(-1)
     {
     }
 
     TransactionRecordEx(uint256 hash, int64_t time) : hash(hash), time(time), type(Other), address(""), debit(0),
-		credit(0), idx(0)
+		credit(0), idx(0), blockidx(-1)
     {
     }
 
     TransactionRecordEx(uint256 hash, int64_t time, Type type, const std::string& address, const CAmount& debit, const CAmount& credit) : hash(hash), time(time), type(type), address(address), debit(debit), credit(credit),
-		idx(0)
+		idx(0), blockidx(-1)
     {
     }
 
@@ -125,6 +125,9 @@ public:
 
     /** Status: can change with block chain update */
     TransactionStatusEx status;
+
+    /** blockidx: index of block contail this trasaction */
+    int blockidx;
 
     /** Whether the transaction was sent/received with a watch-only address */
     bool involvesWatchAddress;
